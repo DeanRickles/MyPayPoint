@@ -39,11 +39,13 @@ Starting with Sales and then add each catagory type after.
 
 ###### generateUrl.py
 
-generateURL
-    1) using  selected inputs manulate a URL for downloadrReport.
-- [x] (Sales) generateURL
-- [x] (Tender) generateURL
-- [x] (PPID) generateURL
+*Type*URL(vStartTimestamp,vEndTimeStamp,vPaymentMethod)
+
+    1) using  selected inputs manulate a breadcrumb URL for downloadReport.
+
+- [x] (Sales)   generateURL
+- [x] (Tender)  generateURL
+- [x] (PPID)    generateURL
 - [ ] (Recepts) generateURL
 - [ ] Review option to consolidate functions into one. 
 
@@ -51,33 +53,40 @@ generateURL
 ###### downloadReport.py
 
 Scrape CSV File.
+
         1) Open webbrowser
         2) Download report based on URL.
         3) Return list of file paths.
-- [x] (Sales)    Scrape CSV File. 
+
+- [x] (Sales)    Scrape CSV File.
     [24/04/2022] (Need to re-write to be generalised for import.)
-    [27/04/2022] ()
-- [ ] (Tender)   Scrape CSV File. 
-- [ ] (PPID)     Scrape CSV File. 
+- [x] (Tender)   Scrape CSV File. 
+    [27/04/2022] (Still requires testing.)
+- [x] (PPID)     Scrape CSV File. 
+    [27/04/2022] (Still requires testing.)
 - [ ] (Recepts)  Scrape CSV File. 
 
 
 ###### sql.py (postgres)
 
 Distinct Dates
+
     1) Open SQL connection.
     2) Read distinct dates the stored SQL.
     3) Return date list.
+
 - [x] (Sales)    Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation) 
 - [x] (Tender)   Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
 - [x] (PPID)     Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
 - [ ] (Reciepts) Get Distinct Dates in SQL.
 
 Import CSV to SQL
+
     1) Convert CSV into table.
     2) Open SQL connection.
     3) insert Table into SQL.
-- [ ] (Sales)    Import CSV into SQL.
-- [ ] (Tender)   Import CSV into SQL.
-- [ ] (PPID)     Import CSV into SQL.
-- [ ] (Recepts)  Import CSV into SQL.
+
+- [ ] (Sales)   Import CSV into SQL.
+- [ ] (Tender)  Import CSV into SQL.
+- [ ] (PPID)    Import CSV into SQL.
+- [ ] (Recepts) Import CSV into SQL.
