@@ -1,3 +1,6 @@
+import pandas as pd
+from datetime import datetime
+
 def compareDateList(vReference, vDifference):
     '''
         Variables:
@@ -8,7 +11,6 @@ def compareDateList(vReference, vDifference):
     '''
     lst = list( set(vReference).difference(set(vDifference)))
     return lst
-
 
 
 def dateSpan(vStartDate, vEndDate):
@@ -23,10 +25,6 @@ def dateSpan(vStartDate, vEndDate):
             endDate example:
                 datetime.today()
     '''
-    
-    import pandas as pd
-    from datetime import datetime
-
     return pd.date_range( end   = vEndDate.replace(microsecond=0, second=0, minute=0), 
                           start = vStartDate.replace(microsecond=0, second=0, minute=0),
                          freq   = 'H').strftime("%d/%m/%Y %H:%M:%S").tolist()
@@ -94,13 +92,13 @@ def filterWorkDay(vTimestamp):
 
 
 
-def reportHoulyEnd(vDate):
+def reportHoulyEnd(vTimestamp):
     '''
         Doesn't work save for later.
     '''
     
     lst = []
-    for x in vDate:
+    for x in vTimestamp:
         start = x
         end = x.replace(':00:00',':59:59')
         y = (end)
