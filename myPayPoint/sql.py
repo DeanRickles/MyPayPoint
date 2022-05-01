@@ -510,7 +510,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
 
 
 
-def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
+def PPIDReport_to_SQL(*vURL, vSite, vUser, vPass,
                        vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
         Setup for Postgres.
