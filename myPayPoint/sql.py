@@ -1,20 +1,32 @@
-import psycopg
-from datetime import datetime
+# local modules
+from . import urlParse
+
+# PIP modules
+import os
+import glob
+import sys
+import json
+import time
+import psycopg # SQL query
+import pandas as pd
+from datetime import datetime as dt
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.common.by import By
 
 
 def GetDateTime(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
         Requirement:
             pip install psycopg-binary psycopg
-            
-        Assumes you're using datetime as startdate and standalone timestamps.
     '''
     
     # Connect to the database.
-    vConn = psycopg.connect(dbname=vServerDB, 
-                            user=vServerUser, 
-                            password=vServerPass, 
-                            host=vServerIP, 
+    vConn = psycopg.connect(dbname=vServerDB,
+                            user=vServerUser,
+                            password=vServerPass,
+                            host=vServerIP,
                             port=vServerPort)
      
     vConn.autocommit = True
@@ -31,13 +43,14 @@ def GetDateTime(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vSer
     
     lst = []
     for x in sorted(vDateTime, reverse=True):
-        lst.append(datetime.strftime(x[0],  "%d/%m/%Y %H:%M:%S"))
+        lst.append(dt.strftime(x[0],  "%d/%m/%Y %H:%M:%S"))
     
     # close connection.
     vCurr.close()
+    vConn.close()
     
     # cleanup variables.
-    del vCurr, vConn, vDateTime
+    #del vCurr, vConn, vDateTime
     
     return lst
 
@@ -47,7 +60,7 @@ def GetDateTime(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vSer
     pacman -S firefox geckodriver
     pip install selenium
     pip install pandas
-    
+
     Requirements:
     ! pacman -S firefox geckodriver
     ! pip install selenium
@@ -55,28 +68,8 @@ def GetDateTime(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vSer
     ! pip install datetime
 '''
 
-# local modules
-from . import urlParse
 
-# PIP modules
-import os
-import glob
-import sys
-import json
-import time
-from datetime import datetime
-import psycopg # SQL query
-import pandas as pd
-
-# Webdriver
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.common.by import By
-
-
-
-def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, 
+def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
                        vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
         Setup for Postgres.
@@ -93,15 +86,15 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
         vServerTbl  = table name
         vServerUser = username
         vServerPass = password
-    ''' 
+    '''
     
     for file in glob.glob("/tmp/Sales Report*"):
         try:
             os.remove(file)
         except:
-            print('Error while deleting file : ', file)    
+            print('Error while deleting file : ', file)
     
-    ''' Start Session 
+    ''' Start Session
     '''
     
     # Geckodriver is required to make Selenium work.
@@ -116,7 +109,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
     options.set_preference("network.prefetch-next ", False)
     options.set_preference("network.http.speculative-parallel-limit", 0)
     options.set_preference("permissions.default.image", 2)
-    options.set_preference("extensions.contentblocker.enabled", True)     
+    options.set_preference("extensions.contentblocker.enabled", True)
     #options.set_preference("javascript.enabled", False)
     options.set_preference("permissions.default.stylesheet", 2)
     
@@ -167,10 +160,10 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
     '''
     
     # Connect to the database.
-    vConn = psycopg.connect(dbname=vServerDB, 
-                            user=vServerUser, 
-                            password=vServerPass, 
-                            host=vServerIP, 
+    vConn = psycopg.connect(dbname=vServerDB,
+                            user=vServerUser,
+                            password=vServerPass,
+                            host=vServerIP,
                             port=vServerPort)
 
     # set the autocommit behavior of the current session.
@@ -191,7 +184,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
     '''
     
     # loop through each instance.
-    for u in vURL:        
+    for u in vURL:
         
         j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
@@ -199,7 +192,6 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
         vEndDate   = j[1]['data']['endDate']
         vSaleType  = j[1]['name']
         print(vSaleType, 'on' , vStartDate, 'to', vEndDate, '- Loading.' )
-        
         
         driver.get(u)
         #print("Loading " + u)
@@ -242,7 +234,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
         try:
             csvData.insert(1,'enddatetime',vEndDate)
         except:
-            pass       
+            pass
         
         # adds saleType to data.
         try:
@@ -252,8 +244,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
         
         # convert data into exportable format.
         dataframe = pd.DataFrame(csvData)
-        #return dataframe      
-        
+        #return dataframe
         
         # PRocess Fille to SQL
         for i in dataframe.index:
@@ -293,22 +284,22 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
                 Total_VAT,
                 Avg_Margin,
                 Total_Profit
-               ) 
+               )
                values(
-               '%s', '%s', '%s', '%s', '%s', 
-               '%s', '%s', '%s', '%s', '%s', 
-               '%s', '%s', '%s', '%s', '%s', 
+               '%s', '%s', '%s', '%s', '%s',
+               '%s', '%s', '%s', '%s', '%s',
+               '%s', '%s', '%s', '%s', '%s',
                '%s'
                ); ''' % (
-                        dataframe['Category'][i], 
-                        datetime.strptime(dataframe['startDate'][i], "%d/%m/%Y %H:%M:%S"), 
-                        datetime.strptime(dataframe['endDate'][i], "%d/%m/%Y %H:%M:%S"), 
+                        dataframe['Category'][i],
+                        dt.strptime(dataframe['datetime'][i], "%d/%m/%Y %H:%M:%S"),
+                        dt.strptime(dataframe['enddatetime'][i], "%d/%m/%Y %H:%M:%S"),
                         dataframe['SaleType'][i], 
                         dataframe['Item Code'][i],
-                        dataframe['Description'][i].replace("'",''), 
+                        dataframe['Description'][i].replace("'",''),
                         dataframe['Unit Size'][i],
                         vBarcode,
-                        dataframe['Weighted Qty'][i], 
+                        dataframe['Weighted Qty'][i],
                         dataframe[' VAT  Rate'][i],
                         dataframe['Total Qty'][i], 
                         dataframe['Total Cost Price'][i],
@@ -327,7 +318,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
 
 
 
-def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, 
+def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
                        vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
         Setup for Postgres.
@@ -350,14 +341,14 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
         try:
             os.remove(file)
         except:
-            print('Error while deleting file : ', file)    
+            print('Error while deleting file : ', file)
     
-    ''' Start Session 
+    ''' Start Session
     '''
     
     # Geckodriver is required to make Selenium work.
     # possible do a find / | grep geckodriver and select the first path?
-    s = Service('/usr/bin/geckodriver') 
+    s = Service('/usr/bin/geckodriver')
     
     options = Options()
     # Speed up load times by disabling options
@@ -367,7 +358,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
     options.set_preference("network.prefetch-next ", False)
     options.set_preference("network.http.speculative-parallel-limit", 0)
     options.set_preference("permissions.default.image", 2)
-    options.set_preference("extensions.contentblocker.enabled", True)     
+    options.set_preference("extensions.contentblocker.enabled", True)
     #options.set_preference("javascript.enabled", False)
     options.set_preference("permissions.default.stylesheet", 2)
     
@@ -419,10 +410,10 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
     '''
 
     # Connect to the database.
-    vConn = psycopg.connect(dbname=vServerDB, 
-                            user=vServerUser, 
-                            password=vServerPass, 
-                            host=vServerIP, 
+    vConn = psycopg.connect(dbname=vServerDB,
+                            user=vServerUser,
+                            password=vServerPass,
+                            host=vServerIP,
                             port=vServerPort)
 
     # set the autocommit behavior of the current session.
@@ -443,7 +434,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
     '''
     
     # loop through each instance.
-    for u in vURL:        
+    for u in vURL:
         
         j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
@@ -451,7 +442,6 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
         vendDate = j[1]['data']['endDate']
         vPaymentMethod  = j[1]['name']
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, '- Loading.')
-    
         
         driver.get(u)
         #print("Loading " + u)
@@ -493,9 +483,8 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
             if dataframe['Description'][i] == 'Change Due' and dataframe['Amount'][i] > 0: 
                 vAmount = dataframe['Amount'][i] * -1
             else: 
-                vAmount = dataframe['Amount'][i]           
-        
-    
+                vAmount = dataframe['Amount'][i]
+            
             insert_table_query = f'''insert into {vServerTbl} (
                 datetime,
                 paymentmethod,
@@ -514,7 +503,6 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
             # sends query to SQL.
             vCurr.execute(insert_table_query)
             
-            
             # Add verification step?
     vCurr.close() # Closing SQL Query
     driver.close() # Closing Browser.
@@ -522,7 +510,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
 
 
 
-def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, 
+def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
                        vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
         Setup for Postgres.
@@ -544,14 +532,14 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
         try:
             os.remove(file)
         except:
-            print('Error while deleting file : ', file)    
+            print('Error while deleting file : ', file)
     
-    ''' Start Session 
+    ''' Start Session
     '''
     
     # Geckodriver is required to make Selenium work.
     # possible do a find / | grep geckodriver and select the first path?
-    s = Service('/usr/bin/geckodriver') 
+    s = Service('/usr/bin/geckodriver')
     
     options = Options()
     # Speed up load times by disabling options
@@ -561,7 +549,7 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
     options.set_preference("network.prefetch-next ", False)
     options.set_preference("network.http.speculative-parallel-limit", 0)
     options.set_preference("permissions.default.image", 2)
-    options.set_preference("extensions.contentblocker.enabled", True)     
+    options.set_preference("extensions.contentblocker.enabled", True)
     #options.set_preference("javascript.enabled", False)
     options.set_preference("permissions.default.stylesheet", 2)
     
@@ -607,21 +595,20 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
     else:
         print("Logged in.")
     
-    
     # connect to SQL
     ''' Connect to Databasse
     '''
-
+    
     # Connect to the database.
     vConn = psycopg.connect(dbname=vServerDB, 
                             user=vServerUser, 
                             password=vServerPass, 
                             host=vServerIP, 
                             port=vServerPort)
-
+    
     # set the autocommit behavior of the current session.
     vConn.autocommit = True
-
+    
     # Open a cursor to proform database operations.
     vCurr = vConn.cursor()
     
@@ -645,7 +632,6 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
         vendDate = j[0]['data']['endDate']
         vPaymentMethod  = 'PPID'
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, '- Loading.')
-    
         
         driver.get(u)
         #print("Loading " + u)
@@ -682,7 +668,7 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
         
         # Process File to SQL
         for i in dataframe.index:
-    
+            
             insert_table_query = f'''insert into {vServerTbl} (
                 datetime,
                 employee,
@@ -708,8 +694,8 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass,
             # sends query to SQL.
             vCurr.execute(insert_table_query)
             
-            
-            # Add verification step?
+    # Add verification step?
+    
     vCurr.close() # Closing SQL Query
     driver.close() # Closing Browser.
     driver.quit() # Quitting Browser.

@@ -166,13 +166,13 @@ def SalesReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         
         # adds startDate to data.
         try:
-            csvData.insert(0,'startDate',vStartDate)
+            csvData.insert(0,'datetime',vStartDate)
         except:
             pass
         
         # adds endDate to data.
         try:
-            csvData.insert(1,'endDate',vStartDate)
+            csvData.insert(1,'enddatetime',vStartDate)
         except:
             pass       
         
@@ -342,13 +342,13 @@ def TenderReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         dataframe = pd.DataFrame(csvData) 
         # adds startDate to data.
         try:
-            csvData.insert(0,'startDate',vstartDate)
+            csvData.insert(0,'datetime',vstartDate)
         except:
             pass
         
         # adds endDate to data.
         try:
-            csvData.insert(1,'endDate',vendDate)
+            csvData.insert(1,'enddatetime',vendDate)
         except:
             pass       
         
@@ -523,13 +523,13 @@ def PPIDReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         
         # adds startDate to data.
         try:
-            csvData.insert(0,'startDate',vstartDate)
+            csvData.insert(0,'datetime',vstartDate)
         except:
             pass
         
         # adds endDate to data.
         try:
-            csvData.insert(1,'endDate',vendDate)
+            csvData.insert(1,'enddatetime',vendDate)
         except:
             pass       
         

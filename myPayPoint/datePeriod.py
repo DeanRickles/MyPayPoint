@@ -1,5 +1,6 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime as dt
+from datetime import timedelta as td
 
 def compare_datetime_list(reference, difference):
     # reference:  Specifies an array of objects used as a reference for comparison.
@@ -15,10 +16,10 @@ def datespan(datetime, enddatetime):
                          freq   = 'H').strftime("%d/%m/%Y %H:%M:%S").tolist()
 
 
-def filter_workday(vTimestamp):
+def filter_workday(datetime):
     # Setup to my own hours wanted. Need to review a better solution.
     lst = []
-    for x in vTimestamp:
+    for x in datetime:
         if ' 00' in x:
             pass
         elif ' 01' in x:
@@ -85,9 +86,9 @@ def hour_end(datetime):
 
 
 
-def hour_rounder(vDateTime):
+def hour_rounder(datetime):
     lst = []
-    for t in vDateTime:
+    for t in datetime:
         if isinstance(t, str):
             lst.append(t[:14] + '00:00')
         else:
@@ -96,5 +97,5 @@ def hour_rounder(vDateTime):
 
 
 
-def distinct_datetime(*vDateTime):
-    return list(set(vDateTime))
+def distinct_datetime(datetime):
+    return list(set(datetime))

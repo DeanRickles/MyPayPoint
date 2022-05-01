@@ -13,39 +13,38 @@ This section is purely to help me keep on track and note what needs to be done.
 Starting with Sales and then add each catagory type after.
 
 
-###### Bug fixes:
+##### Bug fixes:
+- [x] Standardise datetime header. datetime = StartDate && enddatetime = Enddate
+    - [x] checked datePeriod.py     [01/05/2022] ()
+    - [x] checked downloadReport.py [01/05/2022] ()
+    - [x] checked generateURL.py    [01/05/2022] (non found.)
+    - [x] checked Report_to_sql.py  [01/05/2022] (changed in insert SQL query.)
+    - [x] checked sql.py            [01/05/2022] ()
+- [x] Move SQL queries to own module.
+- [x] Pacman requirement file.
+- [x] PIP requirement file.
 - [ ] Scope out all varaibles and remove any unrequired.
 - [ ] Move main varaibles into .env
-- [ ] Pacman requirement file.
-- [ ] PIP requirement file.
-- [ ] Standardise datetime header. datetime = StartDate && enddatetime = Enddate
-    - [ ] checked datePeriod.py
-    - [ ] checked downloadReport.py
-    - [ ] checked generateURL.py
-    - [ ] checked Report_to_sql.py
-    - [ ] checked sql.py
-- [ ] Move SQL queries to own module.
 - [ ] Review variable notes in each function.
 - [ ] Issue with barcodes not always importing
 
-###### Module
 
-###### datePeriod.py
+##### datePeriod.py
 
-- [x] compareDateList [24/04/2022] ()
-- [x] dateSplan       [24/04/2022] ()
-- [x] filterWorkDay   [24/04/2022] (Requires re-writing.)
-- [x] reportHourlyEnd [24/04/2022] (Rename Function.)
+- [x] compare_date_list [24/04/2022] ()
+- [x] datespan          [24/04/2022] ()
+- [x] filter_workfay    [24/04/2022] (Requires re-writing.)
+- [x] hour_end          [24/04/2022] (Rename Function.)
+- [x] distinct_datetime [01/05/2022] ()
 
-
-###### urlParse.py
+##### urlParse.py
 - [x] (URL parse) Decode. [24/04/2022] ()
 - [x] (URL parse) Encode. [24/04/2022] ()
 
 
-###### generateUrl.py
+##### generateUrl.py
 
-*Type*URL(vStartTimestamp,vEndTimeStamp,vPaymentMethod)
+*Type*URL(datetime,enddatetime,type)
 
     1) using  selected inputs manulate a breadcrumb URL for downloadReport.
 
@@ -53,10 +52,10 @@ Starting with Sales and then add each catagory type after.
 - [x] (Tender)  generateURL
 - [x] (PPID)    generateURL
 - [ ] (Reciepts) generateURL
-- [ ] Review option to consolidate functions into one. 
+- [ ] Review option to consolidate functions into one.
 
 
-###### downloadReport.py
+##### downloadReport.py
 
 Scrape CSV File.
 
@@ -66,11 +65,11 @@ Scrape CSV File.
 
 - [x] (Sales)    Scrape CSV File.
     [24/04/2022] (Need to re-write to be generalised for import.)
-- [x] (Tender)   Scrape CSV File. 
+- [x] (Tender)   Scrape CSV File.
     [27/04/2022] (Still requires testing.)
-- [x] (PPID)     Scrape CSV File. 
+- [x] (PPID)     Scrape CSV File.
     [27/04/2022] (Still requires testing.)
-- [ ] (Reciepts)  Scrape CSV File. 
+- [ ] (Reciepts)  Scrape CSV File.
 
 Extra to add to above functions:
 - [x] output Filename of file. [28/04/2022] ()
@@ -78,7 +77,8 @@ Extra to add to above functions:
 - [ ] Alter parameter to accept vURL from list.
 
 
-###### sql.py (postgres)
+
+##### sql.py (postgres)
 
 Distinct Dates
 
@@ -90,20 +90,6 @@ Distinct Dates
 - [x] (Tender)   Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
 - [x] (PPID)     Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
 - [ ] (Reciepts) Get Distinct Dates in SQL.
-- [ ] fuction:round date to hour. wrapper to be used when needed.
-
-
-Import CSV to SQL
-
-    1) Convert CSV into table.
-    2) check table headers are valid.
-    3) Open SQL connection.
-    4) insert Table into SQL.
-
-- [ ] (Sales)    Import CSV into SQL.
-- [ ] (Tender)   Import CSV into SQL.
-- [ ] (PPID)     Import CSV into SQL.
-- [ ] (Reciepts) Import CSV into SQL.
 
 
 Scrape CSV File into SQL.
@@ -120,7 +106,20 @@ Scrape CSV File into SQL.
 - [ ] (Reciepts) Scrape CSV into SQL.
 
 
-###### SQL.CreateTable
+Import CSV to SQL
+
+    1) Convert CSV into table.
+    2) check table headers are valid.
+    3) Open SQL connection.
+    4) insert Table into SQL.
+
+- [ ] (Sales)    Import CSV into SQL.
+- [ ] (Tender)   Import CSV into SQL.
+- [ ] (PPID)     Import CSV into SQL.
+- [ ] (Reciepts) Import CSV into SQL.
+
+
+##### SQL.CreateTable
 Create sql structure if it doesn't already exist.
 
     1) Connect to database.
@@ -133,7 +132,7 @@ Create sql structure if it doesn't already exist.
 - [ ] Reciepts
 
 
-###### SQL.CheckTable
+##### SQL.CheckTable
 Check the structure of the table is correct.
 
 CheckTable()
@@ -147,18 +146,4 @@ CheckTable()
 - [ ] Tender
 - [ ] PPID
 - [ ] Reciepts
-
-
----
-
-
-## Future idea.
-Unlikely addition but will review after completing everything else.
-
-###### Dataframe output
-Scrape csv and output dataframe.
-
-###### Dataframe to SQL
-Take dataframe and input into SQL. Biggest issue with this config is setting the data types. Everything will bee re-setting up.
-
 
