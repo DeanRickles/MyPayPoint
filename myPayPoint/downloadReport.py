@@ -23,6 +23,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 
+
 def SalesReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
     '''
         Arguments:
@@ -38,7 +39,7 @@ def SalesReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         vPath = vPath + '/'
     
     # checks to find file in expected location and removes any.
-    for file in glob.glob("/tmp/Sales Report*"):
+    for file in glob.glob("/tmp/Sales Report*"): #Diff
         try:
             os.remove(file)
         except:
@@ -121,11 +122,11 @@ def SalesReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
     for u in vURL:        
         
         # parse url breadcrumbs.
-        j = json.loads(urlDecode(str(u.split('=')[1])))
+        j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
         vStartDate = j[1]['data']['startDate']
         vEndDate   = j[1]['data']['endDate']
-        vSaleType  = j[1]['name']
+        vSaleType  = j[1]['name'] #Diff
         del j # clear json after load.
         
         print(vSaleType, 'on', vStartDate, 'to', vEndDate, '- Loading.' )
@@ -152,7 +153,7 @@ def SalesReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         time.sleep(15)
         
         # expected local temp file path.
-        vFile = '/tmp/Sales Report.csv'
+        vFile = '/tmp/Sales Report.csv' #Diff
         
         # loads csv into memory.
         csvData=pd.read_csv(vFile,
@@ -192,10 +193,14 @@ def SalesReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         vFullName = vPath + vFileName
         
         # export dataframe into csv format.
-        dataframe.to_csv(vFullName)
+        dataframe.to_csv(vFullName,
+                         index=False)
+        
+        # Return the file for passthrough
+        return vFullName
         
         # Clean-up variables
-        del vOutput,dataframe
+        del dataframe
 
         
 def TenderReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
@@ -280,23 +285,6 @@ def TenderReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         print("Logged in.")
     
     
-    # connect to SQL
-    ''' Connect to Databasse
-    '''
-
-    # Connect to the database.
-    vConn = psycopg.connect(dbname=vServerDB, 
-                            user=vServerUser, 
-                            password=vServerPass, 
-                            host=vServerIP, 
-                            port=vServerPort)
-
-    # set the autocommit behavior of the current session.
-    vConn.autocommit = True
-
-    # Open a cursor to proform database operations.
-    vCurr = vConn.cursor()
-    
     # converts turple into list.
     if not isinstance(vURL, list):
         vURL = list(vURL)
@@ -311,16 +299,17 @@ def TenderReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
     # loop through each instance.
     for u in vURL:        
         
-        j = json.loads(urlDecode(str(u.split('=')[1])))
+        j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
         vstartDate = j[1]['data']['startDate']
-        vendDate = j[1]['data']['endDate']
-        vPaymentMethod  = j[1]['name']
+        vendDate   = j[1]['data']['endDate']
+        vPaymentMethod  = j[1]['name'] #Diff
+        
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, '- Loading.')
-    
         
         driver.get(u)
         #print("Loading " + u)
+        
         # change to a wait for item on page with timeout.
         time.sleep(5)
         
@@ -338,7 +327,7 @@ def TenderReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         time.sleep(10)
         
         # local temp file path.
-        vFile = '/tmp/Tender Report.csv'
+        vFile = '/tmp/Tender Report.csv' #Diff
         
         # loads csv into memory.
         csvData=pd.read_csv(vFile,
@@ -353,37 +342,41 @@ def TenderReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         dataframe = pd.DataFrame(csvData) 
         # adds startDate to data.
         try:
-            csvData.insert(0,'startDate',vStartDate)
+            csvData.insert(0,'startDate',vstartDate)
         except:
             pass
         
         # adds endDate to data.
         try:
-            csvData.insert(1,'endDate',vEndDate)
+            csvData.insert(1,'endDate',vendDate)
         except:
             pass       
         
         # adds saleType to data.
         try:
-            csvData.insert(2,'SaleType',vSaleType)
+            csvData.insert(2,'SaleType',vPaymentMethod) #Diff
         except:
             pass
         
         # convert data into exportable format.
-        dataframe = pd.DataFrame(csvData)
+        #dataframe = pd.DataFrame(csvData)
         
         # export data to vPath.
         # formart startdate_enddate_saletype.csv
-        vFileName = vStartDate.replace('/','').replace(':','').replace(' ','') + '_' + vEndDate.replace('/','').replace(':','').replace(' ','') + '_' + vSaleType.replace(' ','_') + '.csv'
+        vFileName = vstartDate.replace('/','').replace(':','').replace(' ','') + '_' + vendDate.replace('/','').replace(':','').replace(' ','') + '_' + vPaymentMethod.replace(' ','_') + '.csv'
         
         # export path fullname
         vFullName = vPath + vFileName
         
         # export dataframe into csv format.
-        dataframe.to_csv(vFullName)
+        dataframe.to_csv(vFullName,
+                         index=False)
+        
+        # Return the file for passthrough
+        return vFullName
         
         # Clean-up variables
-        del vOutput,dataframe
+        del dataframe
 
 
 
@@ -469,23 +462,6 @@ def PPIDReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         print("Logged in.")
     
     
-    # connect to SQL
-    ''' Connect to Databasse
-    '''
-
-    # Connect to the database.
-    vConn = psycopg.connect(dbname=vServerDB, 
-                            user=vServerUser, 
-                            password=vServerPass, 
-                            host=vServerIP, 
-                            port=vServerPort)
-
-    # set the autocommit behavior of the current session.
-    vConn.autocommit = True
-
-    # Open a cursor to proform database operations.
-    vCurr = vConn.cursor()
-    
     # converts turple into list.
     if not isinstance(vURL, list):
         vURL = list(vURL)
@@ -497,37 +473,41 @@ def PPIDReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
     ''' Loop through vURL
     '''
     
+    # used to output files created.
+    vOutput = []
+    
     # loop through each instance.
     for u in vURL:        
         
-        j = json.loads(urlDecode(str(u.split('=')[1])))
+        j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
         vstartDate = j[0]['data']['startDate']
         vendDate = j[0]['data']['endDate']
-        vPaymentMethod  = 'PPID'
-        print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, '- Loading.')
-    
+        vSaleType  = 'PPID' #Diff
+        
+        print(vSaleType, 'on', vstartDate, 'to', vendDate, '- Loading.')
         
         driver.get(u)
         #print("Loading " + u)
+        
         # change to a wait for item on page with timeout.
         time.sleep(5)
         
         # Select Export dropdown
         driver.find_element(By.CSS_SELECTOR, ".btn-group:nth-child(1) > .btn").click()
-        print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, "- Selecting Export Dropdown.")
+        print(vSaleType, 'on', vstartDate, 'to', vendDate, "- Selecting Export Dropdown.")
         # change to a wait for item on page with timeout.
         time.sleep(5)
         
         # Select Export button
         driver.find_element(By.LINK_TEXT, "Export to CSV").click()
-        print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, "- Selecting Export Button.")
+        print(vSaleType, 'on', vstartDate, 'to', vendDate, "- Selecting Export Button.")
 
         # wait for file to apear.
         time.sleep(10)
         
         # local temp file path.
-        vFile = '/tmp/Pay Point Report.csv'
+        vFile = '/tmp/Pay Point Report.csv' #Diff
         
         # loads csv into memory.
         csvData=pd.read_csv(vFile,
@@ -539,17 +519,47 @@ def PPIDReport_to_CSV(*vURL, vSite, vUser, vPass, vPath):
         os.remove(vFile)
         
         # convert data into exportable format.
+        #dataframe = pd.DataFrame(csvData)
+        
+        # adds startDate to data.
+        try:
+            csvData.insert(0,'startDate',vstartDate)
+        except:
+            pass
+        
+        # adds endDate to data.
+        try:
+            csvData.insert(1,'endDate',vendDate)
+        except:
+            pass       
+        
+        # adds saleType to data.
+        try:
+            csvData.insert(2,'SaleType',vSaleType)
+        except:
+            pass
+        
+        # convert data into exportable format.
         dataframe = pd.DataFrame(csvData)
         
         # export data to vPath.
         # formart startdate_enddate_saletype.csv
-        vFileName = vStartDate.replace('/','').replace(':','').replace(' ','') + '_' + vEndDate.replace('/','').replace(':','').replace(' ','') + '_' + vPaymentMethod.replace(' ','_') + '.csv'
+        vFileName = vstartDate.replace('/','').replace(':','').replace(' ','') + '_' + vendDate.replace('/','').replace(':','').replace(' ','') + '_' + vSaleType.replace(' ','_') + '.csv'
         
         # export path fullname
         vFullName = vPath + vFileName
         
         # export dataframe into csv format.
-        dataframe.to_csv(vFullName)
+        dataframe.to_csv(vFullName,
+                         index=False)
         
-        # Clean-up variables
-        del vOutput,dataframe,vPaymentMethod, vFullName, vPath, vFileName, csvData, vFile
+        
+        # pass vFullName into list for reutrn at end.
+        # Return the file for passthrough
+        vOutput.append(vFullName)
+        
+    # Clean-up variables
+    del dataframe, vFullName, vPath, vFileName, csvData, vFile
+    
+    # output the list of files created.
+    return vOutput

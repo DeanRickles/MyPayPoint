@@ -1,41 +1,22 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 
-def compareDateList(vReference, vDifference):
-    '''
-        Variables:
-            vReference
-                Specifies an array of objects used as a reference for comparison.
-            vDifference
-                Specifies the objects that are compared to the reference objects.
-    '''
-    lst = list( set(vReference).difference(set(vDifference)))
-    return lst
+def compare_datetime_list(reference, difference):
+    # reference:  Specifies an array of objects used as a reference for comparison.
+    # difference: Specifies the objects that are compared to the reference objects.
+    return list( set(reference).difference(set(difference)) )
 
-
-def dateSpan(vStartDate, vEndDate):
-    '''
-        Requirements:
-            pip install pandas
-
-        Variables:
-            startDate example:
-                datetime(2021,7,14,0,0,0)
-
-            endDate example:
-                datetime.today()
-    '''
-    return pd.date_range( end   = vEndDate.replace(microsecond=0, second=0, minute=0), 
-                          start = vStartDate.replace(microsecond=0, second=0, minute=0),
+def datespan(datetime, enddatetime):
+    # Requirements: pip install pandas
+    # startDate example: datetime(2021,7,14,0,0,0)
+    # endDate example:   datetime.today()
+    return pd.date_range( end   = enddatetime.replace(microsecond=0, second=0, minute=0), 
+                          start = datetime.replace(microsecond=0, second=0, minute=0),
                          freq   = 'H').strftime("%d/%m/%Y %H:%M:%S").tolist()
 
 
-
-def filterWorkDay(vTimestamp):
-    '''
-        Setup to my own hours wanted.
-        Need to review a better solution.
-    '''
+def filter_workday(vTimestamp):
+    # Setup to my own hours wanted. Need to review a better solution.
     lst = []
     for x in vTimestamp:
         if ' 00' in x:
@@ -92,16 +73,28 @@ def filterWorkDay(vTimestamp):
 
 
 
-def reportHoulyEnd(vTimestamp):
-    '''
-        Doesn't work save for later.
-    '''
-    
+def hour_end(datetime):
     lst = []
-    for x in vTimestamp:
-        start = x
-        end = x.replace(':00:00',':59:59')
-        y = (end)
-        lst.append(y)
-        
+    for x in datetime:
+        if isinstance(x, str):
+            lst.append(x.replace(':00:00',':59:59'))
+        else:
+            print(f"hour_end() error: {x} is not a str date.")
+            break
     return lst
+
+
+
+def hour_rounder(vDateTime):
+    lst = []
+    for t in vDateTime:
+        if isinstance(t, str):
+            lst.append(t[:14] + '00:00')
+        else:
+            lst.append(t.replace(second=0, microsecond=0, minute=0, hour=t.hour) +timedelta(hours=t.minute//30))
+    return lst
+
+
+
+def distinct_datetime(*vDateTime):
+    return list(set(vDateTime))

@@ -1,10 +1,13 @@
 import psycopg
 from datetime import datetime
 
-def GetSalesDates(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
+
+def GetDateTime(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
         Requirement:
             pip install psycopg-binary psycopg
+            
+        Assumes you're using datetime as startdate and standalone timestamps.
     '''
     
     # Connect to the database.
@@ -20,101 +23,23 @@ def GetSalesDates(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vS
     vCurr = vConn.cursor()
     
     # execute command
-    vCurr.execute(f'''SELECT DISTINCT startdate
+    vCurr.execute(f'''SELECT DISTINCT datetime
                   from public.{vServerTbl};''')
     
     # fetch mutli line
-    reportdataStartDate = vCurr.fetchall()
+    vDateTime = vCurr.fetchall()
     
     lst = []
-    for x in sorted(reportdataStartDate, reverse=True):
+    for x in sorted(vDateTime, reverse=True):
         lst.append(datetime.strftime(x[0],  "%d/%m/%Y %H:%M:%S"))
     
     # close connection.
     vCurr.close()
     
     # cleanup variables.
-    del vCurr, vConn, reportdataStartDate
+    del vCurr, vConn, vDateTime
     
     return lst
-
-
-def GetTenderDates(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
-    '''
-        Requirement:
-            pip install psycopg-binary psycopg
-    '''
-    
-    # Connect to the database.
-    vConn = psycopg.connect(dbname=vServerDB, 
-                            user=vServerUser, 
-                            password=vServerPass, 
-                            host=vServerIP, 
-                            port=vServerPort)
-     
-    vConn.autocommit = True
-    
-    # Open a cursor to proform database operations.
-    vCurr = vConn.cursor()
-    
-    # execute command
-    vCurr.execute(f'''SELECT DISTINCT cast(CONCAT(LEFT(cast(datetime as text), 14),'00:00') as timestamp) as datetime
-                  from public.{vServerTbl};''')
-    
-    # fetch mutli line
-    reportdataStartDate = vCurr.fetchall()
-    
-    lst = []
-    for x in sorted(reportdataStartDate, reverse=True):
-        lst.append(datetime.strftime(x[0],  "%d/%m/%Y %H:%M:%S"))
-
-    # close connection.
-    vCurr.close()
-    
-    # cleanup variables.
-    del vCurr, vConn, reportdataStartDate
-    
-    return lst
-
-
-def GetPPIDDates(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
-    '''
-        Requirement:
-            pip install psycopg-binary psycopg
-    '''
-    
-    # Connect to the database.
-    vConn = psycopg.connect(dbname=vServerDB, 
-                            user=vServerUser, 
-                            password=vServerPass, 
-                            host=vServerIP, 
-                            port=vServerPort)
-     
-    vConn.autocommit = True
-    
-    # Open a cursor to proform database operations.
-    vCurr = vConn.cursor()
-    
-    # execute command
-    vCurr.execute(f'''SELECT DISTINCT cast(CONCAT(LEFT(cast(date_time as text), 14),'00:00') as timestamp) as date_time
-                  from public.{vServerTbl};''')
-    
-    # fetch mutli line
-    reportdataStartDate = vCurr.fetchall()
-    
-    lst = []
-    for x in sorted(reportdataStartDate, reverse=True):
-        lst.append(datetime.strftime(x[0],  "%d/%m/%Y %H:%M:%S"))
-    
-    # close connection.
-    vCurr.close()
-    
-    # cleanup variables.
-    del vCurr, vConn, reportdataStartDate
-        
-    return lst
-
-
 
 
 '''
@@ -131,7 +56,7 @@ def GetPPIDDates(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vSe
 '''
 
 # local modules
-import urlParse
+from . import urlParse
 
 # PIP modules
 import os
@@ -151,27 +76,25 @@ from selenium.webdriver.common.by import By
 
 
 
-
-def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB, 
-                                                   vServerUser, 
-                                                   vServerPass, 
-                                                   vServerIP, 
-                                                   vServerPort):
+def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, 
+                       vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
+        Setup for Postgres.
+        
         Arguments:
         vURL : URL of Paypoint
         vSite: Site Code
         vUser: username
         vPass: password
         
-            quickly added:
-            vServerDB, 
-            vServerUser, 
-            vServerPass, 
-            vServerIP, 
-            vServerPort
+        vServerIP   = IP address
+        vServerPort = port
+        vServerDB   = database name
+        vServerTbl  = table name
+        vServerUser = username
+        vServerPass = password
     ''' 
-        
+    
     for file in glob.glob("/tmp/Sales Report*"):
         try:
             os.remove(file)
@@ -182,7 +105,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
     '''
     
     # Geckodriver is required to make Selenium work.
-    # possible do a find / | grep geckodriver and select the first path?
+    # possible do a find / | grep geckodriver and select the first path? Need to add error catch
     s = Service('/usr/bin/geckodriver') 
     
     options = Options()
@@ -270,7 +193,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
     # loop through each instance.
     for u in vURL:        
         
-        j = json.loads(urlDecode(str(u.split('=')[1])))
+        j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
         vStartDate = j[1]['data']['startDate']
         vEndDate   = j[1]['data']['endDate']
@@ -311,13 +234,13 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
         
         # adds startDate to data.
         try:
-            csvData.insert(0,'startDate',vStartDate)
+            csvData.insert(0,'datetime',vStartDate)
         except:
             pass
         
         # adds endDate to data.
         try:
-            csvData.insert(1,'endDate',vEndDate)
+            csvData.insert(1,'enddatetime',vEndDate)
         except:
             pass       
         
@@ -353,10 +276,10 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
             else:
                 vBarcode = '0.0'
             
-            insert_table_query = '''insert into REPORTDATA (
+            insert_table_query = f'''insert into {vServerTbl} (
                 Category,
-                startDate,
-                endDate,
+                datetime,
+                enddatetime,
                 SaleType,
                 Item_Code,
                 Description,
@@ -404,25 +327,23 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
 
 
 
-
-def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB, 
-                                                   vServerUser, 
-                                                   vServerPass, 
-                                                   vServerIP, 
-                                                   vServerPort):
+def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, 
+                       vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
+        Setup for Postgres.
+        
         Arguments:
         vURL : URL of Paypoint
         vSite: Site Code
         vUser: username
         vPass: password
         
-            quickly added:
-            vServerDB, 
-            vServerUser, 
-            vServerPass, 
-            vServerIP, 
-            vServerPort
+        vServerIP   = IP address
+        vServerPort = port
+        vServerDB   = database name
+        vServerTbl  = table name
+        vServerUser = username
+        vServerPass = password
     ''' 
 
     for file in glob.glob("/tmp/Tender Report*"):
@@ -524,7 +445,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
     # loop through each instance.
     for u in vURL:        
         
-        j = json.loads(urlDecode(str(u.split('=')[1])))
+        j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
         vstartDate = j[1]['data']['startDate']
         vendDate = j[1]['data']['endDate']
@@ -575,7 +496,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
                 vAmount = dataframe['Amount'][i]           
         
     
-            insert_table_query = '''insert into TENDERDATA (
+            insert_table_query = f'''insert into {vServerTbl} (
                 datetime,
                 paymentmethod,
                 quantity,
@@ -601,24 +522,22 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
 
 
 
-def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, vServerDB, 
-                                                   vServerUser, 
-                                                   vServerPass, 
-                                                   vServerIP, 
-                                                   vServerPort):
+def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, 
+                       vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
+        Setup for Postgres.
         Arguments:
         vURL : URL of Paypoint
         vSite: Site Code
         vUser: username
         vPass: password
         
-            quickly added:
-            vServerDB, 
-            vServerUser, 
-            vServerPass, 
-            vServerIP, 
-            vServerPort
+        vServerIP   = IP address
+        vServerPort = port
+        vServerDB   = database name
+        vServerTbl  = table name
+        vServerUser = username
+        vServerPass = password
     ''' 
         
     for file in glob.glob("/tmp/Tender Report*"):
@@ -720,7 +639,7 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
     # loop through each instance.
     for u in vURL:        
         
-        j = json.loads(urlDecode(str(u.split('=')[1])))
+        j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
         vstartDate = j[0]['data']['startDate']
         vendDate = j[0]['data']['endDate']
@@ -764,8 +683,8 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
         # Process File to SQL
         for i in dataframe.index:
     
-            insert_table_query = '''insert into PPIDDATA (
-                date_time,
+            insert_table_query = f'''insert into {vServerTbl} (
+                datetime,
                 employee,
                 scheme_name,
                 scheme_group,

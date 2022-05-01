@@ -31,24 +31,16 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 
 
-def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB, 
-                                                   vServerUser, 
-                                                   vServerPass, 
-                                                   vServerIP, 
-                                                   vServerPort):
+def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, 
+                       vServerIP, vServerPort, vServerDB, vServerTbl='REPORTDATA', vServerUser, vServerPass):
     '''
+        Setup for Postgres.
+        
         Arguments:
         vURL : URL of Paypoint
         vSite: Site Code
         vUser: username
         vPass: password
-        
-            quickly added:
-            vServerDB, 
-            vServerUser, 
-            vServerPass, 
-            vServerIP, 
-            vServerPort
     ''' 
         
     for file in glob.glob("/tmp/Sales Report*"):
@@ -232,7 +224,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
             else:
                 vBarcode = '0.0'
             
-            insert_table_query = '''insert into REPORTDATA (
+            insert_table_query = f'''insert into {vServerTbl} (
                 Category,
                 startDate,
                 endDate,
@@ -284,12 +276,11 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
 
 
 
-def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB, 
-                                                   vServerUser, 
-                                                   vServerPass, 
-                                                   vServerIP, 
-                                                   vServerPort):
+def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, 
+                       vServerIP, vServerPort, vServerDB, vServerTbl='TENDERDATA', vServerUser, vServerPass):
     '''
+        Setup for Postgres.
+        
         Arguments:
         vURL : URL of Paypoint
         vSite: Site Code
@@ -454,7 +445,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
                 vAmount = dataframe['Amount'][i]           
         
     
-            insert_table_query = '''insert into TENDERDATA (
+            insert_table_query = f'''insert into {vServerTbl} (
                 datetime,
                 paymentmethod,
                 quantity,
@@ -480,12 +471,10 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
 
 
 
-def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, vServerDB, 
-                                                   vServerUser, 
-                                                   vServerPass, 
-                                                   vServerIP, 
-                                                   vServerPort):
+def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, 
+                       vServerIP, vServerPort, vServerDB, vServerTbl='PPIDDATA', vServerUser, vServerPass):
     '''
+        Setup for Postgres.
         Arguments:
         vURL : URL of Paypoint
         vSite: Site Code
@@ -643,7 +632,7 @@ def PPID_Report_to_SQL(*vURL, vSite, vUser, vPass, vServerDB,
         # Process File to SQL
         for i in dataframe.index:
     
-            insert_table_query = '''insert into PPIDDATA (
+            insert_table_query = f'''insert into {vServerTbl} (
                 date_time,
                 employee,
                 scheme_name,
