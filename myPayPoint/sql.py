@@ -140,7 +140,6 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
     driver.find_element(By.ID, "password").send_keys(vPass)
     driver.find_element(By.CSS_SELECTOR, "#loginButton .pad-left").click()
     # wait for login page to change load.
-    driver.save_screenshot('login_screen.png')
     element = wait.until(EC.invisibility_of_element_located( (By.ID, "siteid_email")), "Still on the login screen." )
     
     ''' Connect to Databasse
