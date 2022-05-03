@@ -24,6 +24,7 @@ Starting with Sales and then add each catagory type after.
 - [x] Pacman requirement file.
 - [x] PIP requirement file.
 - [ ] Scope out all varaibles and remove any unrequired.
+- [x] Replace time.sleep() with selenium wait.
 - [ ] Move main varaibles into .env
 - [ ] Review variable notes in each function.
 - [ ] Issue with barcodes not always importing

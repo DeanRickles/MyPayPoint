@@ -15,6 +15,10 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 
+# wait for item.
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 def GetDateTime(vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
@@ -122,40 +126,23 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
     
     options.headless = True # headless browser running option (Critical option)
     driver = webdriver.Firefox(service=s, options=options)  # load settings into firefox browser.
+    wait = WebDriverWait(driver, 60) # expected_conditions
     
     ''' Login to Webpage
     '''
     
     # MAIN PAGE URL TO LOGIN
     driver.get('https://my.paypoint.com/login')
+    # wait for login page to load.
+    element = wait.until(EC.visibility_of_element_located( (By.ID, "siteid_email")), "Login screen didn't load." )
+    driver.find_element(By.ID, "siteid_email").send_keys(vSite)
+    driver.find_element(By.ID, "username").send_keys(vUser)
+    driver.find_element(By.ID, "password").send_keys(vPass)
+    driver.find_element(By.CSS_SELECTOR, "#loginButton .pad-left").click()
+    # wait for login page to change load.
+    driver.save_screenshot('login_screen.png')
+    element = wait.until(EC.invisibility_of_element_located( (By.ID, "siteid_email")), "Still on the login screen." )
     
-    # change to a wait for item on page with timeout.
-    time.sleep(10)
-    
-    # 'PayPoint Retailer Portal' = logged out.
-    # 'PayPoint EPoS' = logged in.
-    if driver.title == 'PayPoint Retailer Portal':
-        #print("Login Screen.")
-        # INPUT PASSWORD
-        driver.find_element(By.ID, "siteid_email").send_keys(vSite)
-        driver.find_element(By.ID, "username").send_keys(vUser)
-        driver.find_element(By.ID, "password").send_keys(vPass)
-        driver.find_element(By.CSS_SELECTOR, "#loginButton .pad-left").click()
-    else:
-        #print("Logged in.")
-        pass
-    
-    # change to a wait for tile on page with timeout.
-    time.sleep(5)
-    
-    # validation check
-    if driver.title != 'PayPoint Retailer Portal':
-        #driver.save_screenshot('ERROR_001.png')
-        sys.exit("ERROR: 001 Still on Login Screen. " + driver.title)
-    else:
-        print("Logged in.")
-    
-    # connect to SQL
     ''' Connect to Databasse
     '''
     
@@ -187,60 +174,57 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
     for u in vURL:
         
         j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
-        # timestampStart_timestamp_end_saleType
+        # timestampStart_timestampend_saleType
         vStartDate = j[1]['data']['startDate']
         vEndDate   = j[1]['data']['endDate']
         vSaleType  = j[1]['name']
         print(vSaleType, 'on' , vStartDate, 'to', vEndDate, '- Loading.' )
         
+        #load url
         driver.get(u)
-        #print("Loading " + u)
-        
-        # change to a wait for item on page with timeout.
-        time.sleep(10)
-        
+
+        # wait for export dropdown.
+        element = wait.until(EC.visibility_of_element_located( (By.CSS_SELECTOR, ".btn-group:nth-child(1) > .btn")), "Unable to find Export dropdown." )
+        # buffer on the load time. Loading too fast.
+        time.sleep(5)
         # Select Export dropdown
         driver.find_element(By.CSS_SELECTOR, ".btn-group:nth-child(1) > .btn").click()
         print(vSaleType, 'on' , vStartDate, 'to', vEndDate, "- Selecting Export Dropdown.")
-        # change to a wait for item on page with timeout.
-        time.sleep(10)
         
+        # wait for export button.
+        element = wait.until(EC.visibility_of_element_located( (By.LINK_TEXT, "Export to CSV") ), "Unable to find Export button." )
         # Select Export button
         driver.find_element(By.LINK_TEXT, "Export to CSV").click()
         print(vSaleType, 'on' , vStartDate, 'to', vEndDate, "- Selecting Export Button.")
 
-        # wait for file to appear.
-        time.sleep(15)
-        
         # local temp file path.
         vFile = '/tmp/Sales Report.csv'
-        
+        # wait for file to appear.
+        i = 0
+        while not os.path.exists(vFile):
+            i += 1
+            time.sleep(1)
+            if i >=60:
+                sys.exit("ERROR: File Not found. "+ vFile)
+        #buffer for the file to completely load.
+        time.sleep(2)
         # loads csv into memory.
         csvData=pd.read_csv(vFile,
                          encoding='latin1',
                          header=1,
                          index_col=False)
-        
         # removes the temp report.
         os.remove(vFile)
         
         # adds startDate to data.
-        try:
-            csvData.insert(0,'datetime',vStartDate)
-        except:
-            pass
-        
+        try:    csvData.insert(0,'datetime',vStartDate)
+        except: pass
         # adds endDate to data.
-        try:
-            csvData.insert(1,'enddatetime',vEndDate)
-        except:
-            pass
-        
+        try:    csvData.insert(1,'enddatetime',vEndDate)
+        except: pass
         # adds saleType to data.
-        try:
-            csvData.insert(2,'SaleType',vSaleType)
-        except:
-            pass
+        try:    csvData.insert(2,'SaleType',vSaleType)
+        except: pass
         
         # convert data into exportable format.
         dataframe = pd.DataFrame(csvData)
@@ -318,6 +302,7 @@ def SalesReport_to_SQL(*vURL, vSite, vUser, vPass,
 
 
 
+
 def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
                        vServerIP, vServerPort, vServerDB, vServerTbl, vServerUser, vServerPass):
     '''
@@ -371,41 +356,22 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
     
     options.headless = True # headless browser running option (Critical option)
     driver = webdriver.Firefox(service=s, options=options)  # load settings into firefox browser.
+    wait = WebDriverWait(driver, 60) # expected_conditions
     
     ''' Login to Webpage
     '''
-
-    # MAIN PAGE URL TO LOGIN.
+    
+    # MAIN PAGE URL TO LOGIN
     driver.get('https://my.paypoint.com/login')
+    # wait for login page to load.
+    element = wait.until(EC.visibility_of_element_located( (By.ID, "siteid_email")), "Login screen didn't load." )
+    driver.find_element(By.ID, "siteid_email").send_keys(vSite)
+    driver.find_element(By.ID, "username").send_keys(vUser)
+    driver.find_element(By.ID, "password").send_keys(vPass)
+    driver.find_element(By.CSS_SELECTOR, "#loginButton .pad-left").click()
+    # wait for login page to change load.
+    element = wait.until(EC.invisibility_of_element_located( (By.ID, "siteid_email")), "Still on the login screen." )
     
-    # change to a wait for item on page with timeout.
-    time.sleep(10)
-    
-    # 'PayPoint Retailer Portal' = logged out.
-    # 'PayPoint EPoS' = logged in.
-    if driver.title == 'PayPoint Retailer Portal':
-        #print("Login Screen.")
-        # INPUT PASSWORD
-        driver.find_element(By.ID, "siteid_email").send_keys(vSite)
-        driver.find_element(By.ID, "username").send_keys(vUser)
-        driver.find_element(By.ID, "password").send_keys(vPass)
-        driver.find_element(By.CSS_SELECTOR, "#loginButton .pad-left").click()
-    else:
-        #print("Logged in.")
-        pass
-    
-    # change to a wait for tile on page with timeout.
-    time.sleep(5)
-    
-    # validation check
-    if driver.title != 'PayPoint Retailer Portal':
-        #driver.save_screenshot('ERROR_001.png')
-        sys.exit("ERROR: 001 Still on Login Screen. " + driver.title)
-    else:
-        print("Logged in.")
-    
-    
-    # connect to SQL
     ''' Connect to Databasse
     '''
 
@@ -443,42 +409,47 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
         vPaymentMethod  = j[1]['name']
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, '- Loading.')
         
+        # Load url.
         driver.get(u)
-        #print("Loading " + u)
-        # change to a wait for item on page with timeout.
-        time.sleep(5)
         
+        # wait for export dropdown.
+        element = wait.until(EC.visibility_of_element_located( (By.CSS_SELECTOR, ".btn-group:nth-child(1) > .btn")), "Unable to find Export dropdown." )
+        # buffer on the load time. Loading too fast.
+        time.sleep(5)
         # Select Export dropdown
         driver.find_element(By.CSS_SELECTOR, ".btn-group:nth-child(1) > .btn").click()
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, "- Selecting Export Dropdown.")
-        # change to a wait for item on page with timeout.
-        time.sleep(5)
         
+        # wait for export button.
+        element = wait.until(EC.visibility_of_element_located( (By.LINK_TEXT, "Export to CSV") ), "Unable to find Export button." )
         # Select Export button
         driver.find_element(By.LINK_TEXT, "Export to CSV").click()
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, "- Selecting Export Button.")
 
-        # wait for file to apear.
-        time.sleep(10)
-        
         # local temp file path.
         vFile = '/tmp/Tender Report.csv'
-        
+        # wait for file to appear.
+        i = 0
+        while not os.path.exists(vFile):
+            i += 1
+            time.sleep(1)
+            if i >=60:
+                sys.exit("ERROR: File Not found. "+ vFile)
+        #buffer for the file to completely load.
+        time.sleep(2)
         # loads csv into memory.
         csvData=pd.read_csv(vFile,
                          encoding='latin1',
                          header=1,
                          index_col=False)
-        
         # removes the temp report.
         os.remove(vFile)
         
         # convert data into exportable format.
-        dataframe = pd.DataFrame(csvData)    
-
+        dataframe = pd.DataFrame(csvData)
+        
         # Process File to SQL
         for i in dataframe.index:
-            
             # Converting positive change into negative value.
             if dataframe['Description'][i] == 'Change Due' and dataframe['Amount'][i] > 0: 
                 vAmount = dataframe['Amount'][i] * -1
@@ -562,38 +533,21 @@ def PPIDReport_to_SQL(*vURL, vSite, vUser, vPass,
     
     options.headless = True # headless browser running option (Critical option)
     driver = webdriver.Firefox(service=s, options=options)  # load settings into firefox browser.
+    wait = WebDriverWait(driver, 60) # expected_conditions
     
     ''' Login to Webpage
     '''
     
-    # MAIN PAGE URL TO LOGIN.
+    # MAIN PAGE URL TO LOGIN
     driver.get('https://my.paypoint.com/login')
-    
-    # change to a wait for item on page with timeout.
-    time.sleep(10)
-    
-    # 'PayPoint Retailer Portal' = logged out.
-    # 'PayPoint EPoS' = logged in.
-    if driver.title == 'PayPoint Retailer Portal':
-        #print("Login Screen.")
-        # INPUT PASSWORD
-        driver.find_element(By.ID, "siteid_email").send_keys(vSite)
-        driver.find_element(By.ID, "username").send_keys(vUser)
-        driver.find_element(By.ID, "password").send_keys(vPass)
-        driver.find_element(By.CSS_SELECTOR, "#loginButton .pad-left").click()
-    else:
-        #print("Logged in.")
-        pass
-    
-    # change to a wait for tile on page with timeout.
-    time.sleep(5)
-    
-    # validation check
-    if driver.title != 'PayPoint Retailer Portal':
-        #driver.save_screenshot('ERROR_001.png')
-        sys.exit("ERROR: 001 Still on Login Screen. " + driver.title)
-    else:
-        print("Logged in.")
+    # wait for login page to load.
+    element = wait.until(EC.visibility_of_element_located( (By.ID, "siteid_email")), "Login screen didn't load." )
+    driver.find_element(By.ID, "siteid_email").send_keys(vSite)
+    driver.find_element(By.ID, "username").send_keys(vUser)
+    driver.find_element(By.ID, "password").send_keys(vPass)
+    driver.find_element(By.CSS_SELECTOR, "#loginButton .pad-left").click()
+    # wait for login page to change load.
+    element = wait.until(EC.invisibility_of_element_located( (By.ID, "siteid_email")), "Still on the login screen." )
     
     # connect to SQL
     ''' Connect to Databasse
@@ -624,7 +578,7 @@ def PPIDReport_to_SQL(*vURL, vSite, vUser, vPass,
     '''
     
     # loop through each instance.
-    for u in vURL:        
+    for u in vURL:
         
         j = json.loads(urlParse.urlDecode(str(u.split('=')[1])))
         # timestampStart_timestamp_end_saleType
@@ -633,27 +587,34 @@ def PPIDReport_to_SQL(*vURL, vSite, vUser, vPass,
         vPaymentMethod  = 'PPID'
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, '- Loading.')
         
+        # load url.
         driver.get(u)
-        #print("Loading " + u)
-        # change to a wait for item on page with timeout.
-        time.sleep(5)
         
+        # wait for export dropdown.
+        element = wait.until(EC.visibility_of_element_located( (By.CSS_SELECTOR, ".btn-group:nth-child(1) > .btn")), "Unable to find Export dropdown." )
+        # buffer on the load time. Loading too fast.
+        time.sleep(5)
         # Select Export dropdown
         driver.find_element(By.CSS_SELECTOR, ".btn-group:nth-child(1) > .btn").click()
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, "- Selecting Export Dropdown.")
-        # change to a wait for item on page with timeout.
-        time.sleep(5)
         
+        # wait for export button.
+        element = wait.until(EC.visibility_of_element_located( (By.LINK_TEXT, "Export to CSV") ), "Unable to find Export button." )
         # Select Export button
         driver.find_element(By.LINK_TEXT, "Export to CSV").click()
         print(vPaymentMethod, 'on', vstartDate, 'to', vendDate, "- Selecting Export Button.")
-
-        # wait for file to apear.
-        time.sleep(10)
         
         # local temp file path.
         vFile = '/tmp/Pay Point Report.csv'
-        
+        # wait for file to appear.
+        i = 0
+        while not os.path.exists(vFile):
+            i += 1
+            time.sleep(1)
+            if i >=60:
+                sys.exit("ERROR: File Not found. "+ vFile)
+        #buffer for the file to completely load.
+        time.sleep(2)
         # loads csv into memory.
         csvData=pd.read_csv(vFile,
                          encoding='latin1',
