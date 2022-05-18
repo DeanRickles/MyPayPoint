@@ -70,12 +70,14 @@ Scrape CSV File.
     [27/04/2022] (Still requires testing.)
 - [x] (PPID)     Scrape CSV File.
     [27/04/2022] (Still requires testing.)
-- [ ] (Reciepts)  Scrape CSV File.
+- [x] (Reciepts)  Scrape CSV File.
+    [18/05/2022] (Uses different structure to others due to no json)
 
 Extra to add to above functions:
 - [x] output Filename of file. [28/04/2022] ()
 - [ ] Add check if no data found.
 - [ ] Alter parameter to accept vURL from list.
+- [ ] Update sleep into selenium wait.
 
 
 
