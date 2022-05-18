@@ -4,7 +4,7 @@
 '''
 
 # local modules
-from . import urlParse
+from . import urlParse # Pasrisng json data from url.
 from . import validation as val # validation
 
 # pip modules
@@ -19,7 +19,7 @@ def TenderURL(StartTimestamp, EndTimeStamp, PaymentMethod):
         Variables
             StartTimestamp = begining of timestamp wanted.
                 Example format '20/01/2022 00:00:00'
-            EndTimeStamp   = End of timestamp wanted.                 
+            EndTimeStamp   = End of timestamp wanted.
                 Example format '20/01/2022 01:00:00'
             PaymentMethod
                 1 = Cash
@@ -64,18 +64,16 @@ def SalesURL(StartTimestamp, EndTimeStamp, SaleType):
         Variables
             StartTimestamp = begining of timestamp wanted.
                 Example format '20/01/2022 00:00:00'
-            EndTimeStamp   = End of timestamp wanted.                 
+            EndTimeStamp   = End of timestamp wanted.
                 Example format '20/01/2022 01:00:00'
             SaleType
                 1 = Standard Sales
                 2 = Other Sales
-    
     '''
     
     # check date format
     val.validate(StartTimestamp)
     val.validate(EndTimeStamp)
-    
     
     # based on type provide url breadcrumbs.
     if (SaleType == 1) or (SaleType == 2):
@@ -108,7 +106,7 @@ def PPIDURL(StartTimestamp, EndTimeStamp):
         Variables
             StartTimestamp = begining of timestamp wanted.
                 Example format '20/01/2022 00:00:00'
-            EndTimeStamp   = End of timestamp wanted.                 
+            EndTimeStamp   = End of timestamp wanted.
                 Example format '20/01/2022 01:00:00'
     '''
     
@@ -121,8 +119,37 @@ def PPIDURL(StartTimestamp, EndTimeStamp):
 
     vURLJsonQuery_Template[0]['data']['startDate'] = StartTimestamp
     vURLJsonQuery_Template[0]['data']['endDate'] = EndTimeStamp
-       
+    
     # template data
-    vURLbody_Template  = 'https://my.paypoint.com/epos/epos-reporting?#/report?breadcrumbs='  
+    vURLbody_Template  = 'https://my.paypoint.com/epos/epos-reporting?#/report?breadcrumbs='
     
     return vURLbody_Template + urlParse.urlEncode(json.dumps(vURLJsonQuery_Template))
+
+
+def receiptURL(StartTimestamp, EndTimeStamp):
+    '''
+    Requirements:
+        pip install urllib3
+
+    Notes:
+        Variables
+            StartTimestamp = begining of timestamp wanted.
+                Example format '20/01/2022 00:00:00'
+            EndTimeStamp   = End of timestamp wanted.
+                Example format '20/01/2022 01:00:00'
+    '''
+    
+    # check date format
+    val.validate(StartTimestamp)
+    val.validate(EndTimeStamp)
+    
+    # template url data
+    URL = "https://my.paypoint.com/epos/epos-reporting#/receipt-viewer?filters=%255B%255D&sortColumn=Date%20DESC&graphColumn=&groupBy=1&userReportId=0&breadcrumb=%5B%7B%22Id%22:%22-1%22,%22Type%22:0%7D%5D&startDateTime=2022-05-10-00-00-00&endDateTime=2022-05-10-23-00-59"
+    URLstartDate = "2022-05-10-00-00-00"
+    URLendDate   = "2022-05-10-23-00-59"
+    
+    # transform inputed datetime to format wanted and replace in url for return. Only issue is milliseconds but who would filter using milliseconds?
+    newStartDate = datetime.strptime(StartTimestamp, "%d/%m/%Y %H:%M:%S").strftime('%Y-%m-%d-%H-%M-%S-00')
+    newEndDate   = datetime.strptime(EndTimeStamp, "%d/%m/%Y %H:%M:%S").strftime('%Y-%m-%d-%H-%M-%S-59')
+    
+    return URL.replace(URLstartDate,newStartDate).replace(URLendDate,newEndDate)

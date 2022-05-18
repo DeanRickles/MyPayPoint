@@ -52,7 +52,7 @@ Starting with Sales and then add each catagory type after.
 - [x] (Sales)   generateURL
 - [x] (Tender)  generateURL
 - [x] (PPID)    generateURL
-- [ ] (Reciepts) generateURL
+- [x] (Reciepts) generateURL
 - [ ] Review option to consolidate functions into one.
 
 
