@@ -52,7 +52,7 @@ Starting with Sales and then add each catagory type after.
 - [x] (Sales)   generateURL
 - [x] (Tender)  generateURL
 - [x] (PPID)    generateURL
-- [x] (Reciepts) generateURL
+- [x] (Receipts) generateURL
 - [ ] Review option to consolidate functions into one.
 
 
@@ -70,7 +70,7 @@ Scrape CSV File.
     [27/04/2022] (Still requires testing.)
 - [x] (PPID)     Scrape CSV File.
     [27/04/2022] (Still requires testing.)
-- [x] (Reciepts)  Scrape CSV File.
+- [x] (Receipts)  Scrape CSV File.
     [18/05/2022] (Uses different structure to others due to no json)
 
 Extra to add to above functions:
@@ -89,10 +89,10 @@ Distinct Dates
     2) Read distinct dates the stored SQL.
     3) Return date list.
 
-- [x] (Sales)    Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation) 
+- [x] (Sales)    Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
 - [x] (Tender)   Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
 - [x] (PPID)     Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
-- [ ] (Reciepts) Get Distinct Dates in SQL.
+- [ ] (Receipts) Get Distinct Dates in SQL.
 
 
 Scrape CSV File into SQL.
@@ -106,7 +106,7 @@ Scrape CSV File into SQL.
 - [x] (Sales)    Scrape CSV into SQL. [29/04/2022] ()
 - [x] (Tender)   Scrape CSV into SQL. [29/04/2022] ()
 - [x] (PPID)     Scrape CSV into SQL. [29/04/2022] ()
-- [ ] (Reciepts) Scrape CSV into SQL.
+- [x] (Receipts) Scrape CSV into SQL. [20/05/2022] ()
 
 
 Import CSV to SQL
@@ -119,7 +119,7 @@ Import CSV to SQL
 - [ ] (Sales)    Import CSV into SQL.
 - [ ] (Tender)   Import CSV into SQL.
 - [ ] (PPID)     Import CSV into SQL.
-- [ ] (Reciepts) Import CSV into SQL.
+- [ ] (Receipts) Import CSV into SQL.
 
 
 ##### SQL.CreateTable
@@ -132,7 +132,7 @@ Create sql structure if it doesn't already exist.
 - [ ] Sales
 - [ ] Tender
 - [ ] PPID
-- [ ] Reciepts
+- [x] Receipts [20/05/2022] ()
 
 
 ##### SQL.CheckTable
@@ -148,5 +148,4 @@ CheckTable()
 - [ ] Sales
 - [ ] Tender
 - [ ] PPID
-- [ ] Reciepts
-
+- [ ] Receipts
