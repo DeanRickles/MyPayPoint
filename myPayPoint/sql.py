@@ -3,6 +3,7 @@ from . import urlParse
 
 # PIP modules
 import os
+import re
 import glob
 import sys
 import json
