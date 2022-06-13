@@ -15,32 +15,31 @@ Starting with Sales and then add each catagory type after.
 
 ##### Bug fixes:
 - [x] Standardise datetime header. datetime = StartDate && enddatetime = Enddate
-    - [x] checked datePeriod.py     [01/05/2022] ()
-    - [x] checked downloadReport.py [01/05/2022] ()
-    - [x] checked generateURL.py    [01/05/2022] (non found.)
-    - [x] checked Report_to_sql.py  [01/05/2022] (changed in insert SQL query.)
-    - [x] checked sql.py            [01/05/2022] ()
+    - [x] checked datePeriod.py
+    - [x] checked downloadReport.py
+    - [x] checked generateURL.py
+    - [x] checked Report_to_sql.py
+    - [x] checked sql.py
 - [x] Move SQL queries to own module.
 - [x] Pacman requirement file.
 - [x] PIP requirement file.
 - [ ] Scope out all varaibles and remove any unrequired.
 - [x] Replace time.sleep() with selenium wait.
-- [ ] Move main varaibles into .env
 - [ ] Review variable notes in each function.
 - [ ] Issue with barcodes not always importing
-
+- [x] move unmanaged resources into with function.
 
 ##### datePeriod.py
 
-- [x] compare_date_list [24/04/2022] ()
-- [x] datespan          [24/04/2022] ()
-- [x] filter_workfay    [24/04/2022] (Requires re-writing.)
-- [x] hour_end          [24/04/2022] (Rename Function.)
-- [x] distinct_datetime [01/05/2022] ()
+- [x] compare_date_list
+- [x] datespan
+- [x] filter_workfay
+- [x] hour_end
+- [x] distinct_datetime
 
 ##### urlParse.py
-- [x] (URL parse) Decode. [24/04/2022] ()
-- [x] (URL parse) Encode. [24/04/2022] ()
+- [x] (URL parse) Decode.
+- [x] (URL parse) Encode.
 
 
 ##### generateUrl.py
@@ -53,7 +52,6 @@ Starting with Sales and then add each catagory type after.
 - [x] (Tender)  generateURL
 - [x] (PPID)    generateURL
 - [x] (Receipts) generateURL
-- [ ] Review option to consolidate functions into one.
 
 
 ##### downloadReport.py
@@ -65,18 +63,13 @@ Scrape CSV File.
     3) Return list of file paths.
 
 - [x] (Sales)    Scrape CSV File.
-    [24/04/2022] (Need to re-write to be generalised for import.)
 - [x] (Tender)   Scrape CSV File.
-    [27/04/2022] (Still requires testing.)
 - [x] (PPID)     Scrape CSV File.
-    [27/04/2022] (Still requires testing.)
 - [x] (Receipts)  Scrape CSV File.
-    [18/05/2022] (Uses different structure to others due to no json)
 
 Extra to add to above functions:
-- [x] output Filename of file. [28/04/2022] ()
+- [x] output Filename of file.
 - [ ] Add check if no data found.
-- [ ] Alter parameter to accept vURL from list.
 - [ ] Update sleep into selenium wait.
 
 
@@ -89,10 +82,10 @@ Distinct Dates
     2) Read distinct dates the stored SQL.
     3) Return date list.
 
-- [x] (Sales)    Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
-- [x] (Tender)   Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
-- [x] (PPID)     Get Distinct Dates in SQL. [24/04/2022] (Requires re-writing for generalisation)
-- [ ] (Receipts) Get Distinct Dates in SQL.
+- [x] (Sales)    Get Distinct Dates in SQL.
+- [x] (Tender)   Get Distinct Dates in SQL.
+- [x] (PPID)     Get Distinct Dates in SQL.
+- [x] (Receipts) Get Distinct Dates in SQL.
 
 
 Scrape CSV File into SQL.
@@ -103,10 +96,10 @@ Scrape CSV File into SQL.
     3) Open SQL connection.
     4) insert Table into SQL.
 
-- [x] (Sales)    Scrape CSV into SQL. [29/04/2022] ()
-- [x] (Tender)   Scrape CSV into SQL. [29/04/2022] ()
-- [x] (PPID)     Scrape CSV into SQL. [29/04/2022] ()
-- [x] (Receipts) Scrape CSV into SQL. [20/05/2022] ()
+- [x] (Sales)    Scrape CSV into SQL.
+- [x] (Tender)   Scrape CSV into SQL.
+- [x] (PPID)     Scrape CSV into SQL.
+- [x] (Receipts) Scrape CSV into SQL.
 
 
 Import CSV to SQL
@@ -132,7 +125,7 @@ Create sql structure if it doesn't already exist.
 - [ ] Sales
 - [ ] Tender
 - [ ] PPID
-- [x] Receipts [20/05/2022] ()
+- [x] Receipts
 
 
 ##### SQL.CheckTable
