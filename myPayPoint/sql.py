@@ -379,7 +379,7 @@ def TenderReport_to_SQL(*vURL, vSite, vUser, vPass,
 
     with vConn:
         # Open a cursor to proform database operations.
-        with vConn.cursor() as vCurr
+        with vConn.cursor() as vCurr:
 
             # converts turple into list.
             if not isinstance(vURL, list):
@@ -555,7 +555,7 @@ def PPIDReport_to_SQL(*vURL, vSite, vUser, vPass,
 
     with vConn:
         # Open a cursor to proform database operations.
-        with vConn,cursor()
+        with vConn.cursor():
 
             # converts turple into list.
             if not isinstance(vURL, list):
