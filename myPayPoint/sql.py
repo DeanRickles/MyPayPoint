@@ -555,7 +555,7 @@ def PPIDReport_to_SQL(*vURL, vSite, vUser, vPass,
 
     with vConn:
         # Open a cursor to proform database operations.
-        with vConn.cursor():
+        with vConn.cursor() as vCurr:
 
             # converts turple into list.
             if not isinstance(vURL, list):
@@ -866,7 +866,7 @@ def create_receipt_table(vServerIP, vServerPort, vServerDB, vServerTbl, vServerU
 
             # Generate the insert query.
             create_table_query = f'''CREATE TABLE {vServerTbl} (
-                id NUMERIC,
+               id NUMERIC,
                 ppid TEXT,
                 datetime TIMESTAMP,
                 saletype TEXT,
